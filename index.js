@@ -1,18 +1,14 @@
 import express from 'express';
 import { dbConnection } from './config.js'
 import cors from 'cors'
-import { userRoutes } from './routes/userRoutes.js';
+import { routes } from './routes/routes.js';
 
 const app = express()
 
 app.use(express.json())
 app.use(cors())
+app.use('/', routes)
 
-app.get('/', (req, res) => {
-    res.send("App is running")
-})
-
-app.use('/users', userRoutes)
 
 const startApp = async () => {
     try{
@@ -21,7 +17,7 @@ const startApp = async () => {
             console.log("App is connected with database and running on http://localhost:5000")
         })
     }
-    catch{
+    catch(error){
         console.log("Cannot connect with database.")
     }
 }
