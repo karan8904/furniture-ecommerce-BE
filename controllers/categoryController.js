@@ -25,7 +25,7 @@ export const getCategories = async(req, res) => {
         res.status(200).json({ categories })
     } catch (error) {
         console.log(error)
-        res.status(400).json({ message: "Cannot add the category. Try again..." })
+        res.status(400).json({ message: "Cannot fetch categories. Refresh the page..." })
     }
 }
 
@@ -38,5 +38,31 @@ export const deleteCategory = async(req, res) => {
     } catch (error) {
         console.log(error)
         res.status(400).json({ message: "Cannot delete the category. Try again..." })
+    }
+}
+
+export const updateCategory = async(req, res) => {
+    try {
+        const id = req.params.id
+        const { name, description, image } = req.body
+
+        const newData = {
+            name: name,
+            description: description
+        }
+
+        if(req.file)
+            newData.imageURL = req.file.path
+        else if(image)
+            newData.imageURL = image
+        else
+            return res.status(400).json({message: "Cannot update. Try again."})
+
+        await Category.findByIdAndUpdate(id, newData)
+        res.status(200).json({ message: "Category Updated Successfully." })
+
+    } catch (error) {
+        console.log(error)
+        res.status(400).json({ message: "Cannot update the category. Try again..." })
     }
 }

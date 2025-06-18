@@ -18,11 +18,22 @@ const productSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    availableSizes: {
-        type: Object,
+    sizes: [{
+        type: String,
         required: true
-    },
-    // images: {
-    //     type:
-    // }
+    }],
+    colors: [{
+        type: String,
+        required: true
+    }],
+    images: [{
+        type: String,
+        required: true
+    }],
+}, {
+    timestamps: true
 })
+
+const Product = mongoose.model('Product', productSchema)
+
+export default Product
