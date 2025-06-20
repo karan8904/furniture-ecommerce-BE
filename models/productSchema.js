@@ -30,6 +30,19 @@ const productSchema = new mongoose.Schema({
         type: String,
         required: true
     }],
+    discount_percent: {
+        type: Number,
+        required: true,
+    },    
+    stock: {
+        type: Number,
+        required: true
+    },
+    isVisible: {    
+        type: Boolean,
+        required: true,
+    },
+
 }, {
     timestamps: true
 })
