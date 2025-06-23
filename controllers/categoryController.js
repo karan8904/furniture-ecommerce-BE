@@ -1,5 +1,7 @@
 import Category from "../models/categorySchema.js";
 import fs from "fs";
+import { categoriesList, dummyImages } from "../utils/dummyCategories.js";
+import { faker } from "@faker-js/faker";
 
 export const addCategory = async(req, res) => {
     try {
@@ -64,5 +66,21 @@ export const updateCategory = async(req, res) => {
     } catch (error) {
         console.log(error)
         res.status(400).json({ message: "Cannot update the category. Try again..." })
+    }
+}
+
+export const getDummyCategories = async(req, res) => {
+    try {
+        const categories = categoriesList.map((name) => ({
+            name: name,
+            description: faker.lorem.sentences(),
+            imageURL: faker.helpers.arrayElement(dummyImages)
+          }));        
+        // await Category.insertMany(categories)
+        res.status(200).json(categories)
+
+    } catch (error) {
+        console.log(error)
+        res.status(400).json({ message: "Cannot get products" })
     }
 }
