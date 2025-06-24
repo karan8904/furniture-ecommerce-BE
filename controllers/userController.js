@@ -1,6 +1,7 @@
 import User from "../models/userSchema.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { jwtDecode } from "jwt-decode";
 
 export const registerUser = async (req, res) => {
   try {
@@ -56,3 +57,15 @@ export const loginUser = async (req, res) => {
     res.status(400).json({ message: `Login Failed:${error}` })
   }
 };
+
+export const getUser = async(req, res) => {
+  try {
+    const token = req.params.token
+    const decode = jwtDecode(token)
+    res.status(200).json(decode.user)
+  } catch (error) {
+    res.status(400).json({ message: "Invalid Token. Please login again." })
+  }
+}
+
+
