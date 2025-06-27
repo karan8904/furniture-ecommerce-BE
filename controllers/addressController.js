@@ -2,6 +2,9 @@ import Address from "../models/AddressSchema.js";
 
 export const createAddress = async(req, res) => {
     try {
+        const {userID} = req.body
+        if(!req.user._id.equals(userID))
+            return res.status(401).json({ message: "Not Authorized." })
         const address = new Address(req.body)
         await address.save()
         res.status(201).json({ message: "Address created successfully.", address })
@@ -13,6 +16,8 @@ export const createAddress = async(req, res) => {
 export const getAddresses = async(req, res) => {
     try {
         const id = req.params.id
+        if(!req.user._id.equals(id))
+            return res.status(401).json({ message: "Not Authorized." })
         const addresses = await Address.find({userID: id})
         const homeAddress = addresses.find((address) => address.addressType === "Home")
         const officeAddress = addresses.find((address) => address.addressType === "Office")

@@ -5,6 +5,8 @@ import Order from "../models/orderSchema.js";
 export const createOrder = async(req, res) => {
     try {
         const {userID, products, totalAmount, address, paymentMode} = req.body
+        if(!req.user._id.equals(userID))
+            return res.status(401).json({ message: "Not Authorized." })
         const paymentStatus = "Pending"
         const orderStatus = "Placed"
         const orderID = v4()

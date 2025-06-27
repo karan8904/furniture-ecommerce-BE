@@ -47,7 +47,7 @@ export const loginUser = async (req, res) => {
         .json({ message: "Incorrect Password. Try again..." });
     }
 
-    const token = jwt.sign({ user }, process.env.JWT_KEY, {
+    const token = jwt.sign({ userID: user._id }, process.env.JWT_KEY, {
       expiresIn: "7d",
     });
 
@@ -60,9 +60,10 @@ export const loginUser = async (req, res) => {
 
 export const getUser = async(req, res) => {
   try {
-    const token = req.params.token
+    const token = req.body.token
     const decode = jwtDecode(token)
-    res.status(200).json(decode.user)
+    const user = await User.findById(decode.userID).select("-password")
+    res.status(200).json(user)
   } catch (error) {
     res.status(400).json({ message: "Invalid Token. Please login again." })
   }

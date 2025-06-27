@@ -10,6 +10,8 @@ export const addToCart = async (req, res) => {
       finalPrice,
       quantity,
     } = req.body;
+    if(!req.user._id.equals(userID))
+      return res.status(401).json({ message: "Not Authorized." })
     const product = new Cart({
       userID,
       productID,
@@ -30,6 +32,8 @@ export const addToCart = async (req, res) => {
 export const getCartProducts = async (req, res) => {
   try {
     const userID = req.params.userID;
+    if(!req.user._id.equals(userID))
+      return res.status(401).json({ message: "Not Authorized." })
     const products = await Cart.find({ userID }).populate(
       "productID",
       "name images"
@@ -43,6 +47,8 @@ export const getCartProducts = async (req, res) => {
 export const increaseQuantity = async (req, res) => {
   try {
     const { userID, productID } = req.body;
+    if(!req.user._id.equals(userID))
+      return res.status(401).json({ message: "Not Authorized." })
     const product = await Cart.findOne({ userID, productID });
     product.quantity += 1;
     await product.save();
@@ -55,6 +61,8 @@ export const increaseQuantity = async (req, res) => {
 export const decreaseQuantity = async (req, res) => {
   try {
     const { userID, productID } = req.body;
+    if(!req.user._id.equals(userID))
+      return res.status(401).json({ message: "Not Authorized." })
     const product = await Cart.findOne({ userID, productID });
     product.quantity -= 1;
     await product.save();
