@@ -60,13 +60,18 @@ export const loginUser = async (req, res) => {
 
 export const getUser = async(req, res) => {
   try {
-    const token = req.body.token
-    const decode = jwtDecode(token)
-    const user = await User.findById(decode.userID).select("-password")
+    const user = await User.findById(req.user._id).select("-password")
     res.status(200).json(user)
   } catch (error) {
     res.status(400).json({ message: "Invalid Token. Please login again." })
   }
 }
 
-
+export const editUser = async(req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(req.user._id, req.body, {new: true})
+    res.status(200).json(user)
+  } catch (error) {
+    res.status(400).json({ message: "Cannot update user details." })
+  }
+}
