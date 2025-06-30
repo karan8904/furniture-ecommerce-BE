@@ -7,6 +7,7 @@ import { contactRoutes } from './contactRoutes.js'
 import { cartRoutes } from './cartRoutes.js'
 import { addressRoutes } from './addressRoutes.js'
 import { orderRoutes } from './orderRoutes.js'
+import { emailRoutes } from './emailPreferenceRoutes.js'
 
 export const routes = express.Router()
 
@@ -22,3 +23,4 @@ routes.use('/contacts', contactRoutes)
 routes.use('/cart', cartRoutes)
 routes.use('/address', addressRoutes)
 routes.use('/orders', orderRoutes)
+routes.use('/email', emailRoutes)

@@ -1,7 +1,6 @@
 import User from "../models/userSchema.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { jwtDecode } from "jwt-decode";
 
 export const registerUser = async (req, res) => {
   try {
@@ -39,6 +38,9 @@ export const loginUser = async (req, res) => {
       });
     }
 
+    if(!user.isUserEnabled)
+      return res.status(400).json({ message: "User cannot login." })
+
     const comparePasswords = await bcrypt.compare(password, user.password);
 
     if (!comparePasswords) {
@@ -58,9 +60,20 @@ export const loginUser = async (req, res) => {
   }
 };
 
+export const getAllUsers = async(req, res) => {
+  try {
+    const users = await User.find()
+    res.status(200).json({ message: "Users fetched successfully.", users })
+  } catch (error) {
+    res.status(400).json({ message: "Cannot fetch users. Try again." })
+  }
+}
+
 export const getUser = async(req, res) => {
   try {
     const user = await User.findById(req.user._id).select("-password")
+    if(!user.isUserEnabled)
+      return res.status(400).json({ message: "User cannot login." })
     res.status(200).json(user)
   } catch (error) {
     res.status(400).json({ message: "Invalid Token. Please login again." })
@@ -73,5 +86,15 @@ export const editUser = async(req, res) => {
     res.status(200).json(user)
   } catch (error) {
     res.status(400).json({ message: "Cannot update user details." })
+  }
+}
+
+export const changeUserStatus = async(req, res) => {
+  try {
+    const id = req.body.id
+    const user = await User.findByIdAndUpdate(id, {isUserEnabled: req.body.status}, {new: true})
+    res.status(200).json({ message: "User Status Updated Successfully.", user })
+  } catch (error) {
+    res.status(400).json({ messsage: "Cannot change user's status. Try again." })
   }
 }

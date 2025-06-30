@@ -25,6 +25,11 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
         required: true
+    },
+    isUserEnabled: {
+        type: Boolean,
+        default: true,
+        required: true
     }
 }, {
     timestamps: true
