@@ -143,9 +143,24 @@ export const getProductsFromCategory = async (req, res) => {
 
 export const getDummyProducts = async (req, res) => {
   try {
-    const products = await Promise.all(Array.from({ length: 10 }, () => generateProducts()))
-    res.status(200).json(products)
+    const products = await Promise.all(
+      Array.from({ length: 10 }, () => generateProducts())
+    );
+    // await Product.insertMany(products)
+    res.status(200).json({ message: "Products added successfully.", products });
   } catch (error) {
-    res.status(500).json({ message: "Cannot get products. Try again."})
+    res.status(500).json({ message: "Cannot get products. Try again." });
+  }
+};
+
+export const searchProducts = async (req, res) => {
+  try {
+    const query = req.params.query;
+    const products = await Product.find({
+      name: { $regex: `^${query}`, $options: "i" },
+    });
+    res.status(200).json(products);
+  } catch (error) {
+    res.status(500).json({ message: "Product not found." });
   }
 };

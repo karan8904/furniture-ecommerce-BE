@@ -84,3 +84,15 @@ export const getDummyCategories = async(req, res) => {
         res.status(400).json({ message: "Cannot get products" })
     }
 }
+
+export const searchCategories = async(req, res) => {
+    try {
+        const query = req.params.query;
+        const categories = await Category.find({
+          name: { $regex: `^${query}`, $options: "i" },
+        });
+        res.status(200).json(categories);
+      } catch (error) {
+        res.status(500).json({ message: "Category not found." });
+      }
+}

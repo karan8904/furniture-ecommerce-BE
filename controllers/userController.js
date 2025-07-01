@@ -98,3 +98,15 @@ export const changeUserStatus = async(req, res) => {
     res.status(400).json({ messsage: "Cannot change user's status. Try again." })
   }
 }
+
+export const searchUsers = async(req, res) => {
+  try {
+    const query = req.params.query;
+    const users = await User.find({
+      firstName: { $regex: `^${query}`, $options: "i" },
+    });
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ message: "User not found." });
+  } 
+}

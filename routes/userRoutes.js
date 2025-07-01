@@ -1,5 +1,5 @@
 import express from 'express'
-import { changeUserStatus, editUser, getAllUsers, getUser, loginUser, registerUser } from '../controllers/userController.js'
+import { changeUserStatus, editUser, getAllUsers, getUser, loginUser, registerUser, searchUsers } from '../controllers/userController.js'
 import { userAuth } from '../middlewares/userAuthMiddleware.js'
 import { adminAuth } from '../middlewares/adminAuthMiddleware.js'
 
@@ -11,3 +11,4 @@ userRoutes.get('/getAll', adminAuth, getAllUsers)
 userRoutes.get('/getUser', userAuth, getUser)
 userRoutes.put('/editUser', userAuth, editUser)
 userRoutes.put('/changeStatus', adminAuth, changeUserStatus)
+userRoutes.get('/search/:query', adminAuth, searchUsers)

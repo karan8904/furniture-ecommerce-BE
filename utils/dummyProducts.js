@@ -18,6 +18,7 @@ export const generateProducts = async() => {
     const product = {
         name: faker.commerce.productName(),
         category: faker.helpers.arrayElement(categories)._id,
+        description: faker.lorem.sentences(3),
         sizes: faker.helpers.arrayElements(allSizes, {min: 1, max: allSizes.length}),
         colors: faker.helpers.arrayElements(allColors, {min: 1, max: allColors.length}),
         price: Math.floor(faker.commerce.price({ min: 50, max: 500 })) * 100,
