@@ -102,9 +102,11 @@ export const changeUserStatus = async(req, res) => {
 export const searchUsers = async(req, res) => {
   try {
     const query = req.params.query;
-    const users = await User.find({
-      firstName: { $regex: `^${query}`, $options: "i" },
-    });
+    const users = await User.find({ $or: [
+      { firstName: { $regex: `^${query}`, $options: "i" } },
+      { lastName: { $regex: `^${query}`, $options: "i" } },
+      { "firstName+lastName": { $regex: `^${query}`, $options: "i" } },
+    ] });
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ message: "User not found." });

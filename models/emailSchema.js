@@ -4,7 +4,7 @@ const emailSchema = new mongoose.Schema({
     userID: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
-        required: true
+        required: false
     },
     orderStatus: {
         type: Boolean,
@@ -18,6 +18,10 @@ const emailSchema = new mongoose.Schema({
         type: Boolean,
         required: true
     },
+    email: {
+        type: String,
+        required: true
+    }
 })
 
 const EmailPreference = mongoose.model("EmailPref", emailSchema)

@@ -164,3 +164,39 @@ export const searchProducts = async (req, res) => {
     res.status(500).json({ message: "Product not found." });
   }
 };
+
+export const filterProducts = async (req, res) => {
+  try {
+    const query = req.params.query;
+    const sort = {};
+    if (query === "price-high2low") sort.finalPrice = -1;
+    if (query === "price-low2high") sort.finalPrice = 1;
+    if (query === "date-recent") sort.createdAt = -1;
+
+    if (query === "default"){
+      const products = await Product.find()
+      return res.status(200).json(products)
+    };
+    
+    const products = await Product.aggregate([
+      {
+        $addFields: {
+          finalPrice: {
+            $cond: [
+              { $ifNull: ["$discount_percent", false] },
+              { $subtract: ["$price", {$multiply: ["$price", { $divide: [ "$discount_percent", 100 ] }] }] },
+              "$price"
+            ]
+          }
+        }
+      },
+      { 
+        $sort: sort 
+      }
+    ]);
+    console.table(products)
+    res.status(200).json(products);
+  } catch (error) {
+    res.status(500).json({ message: "No products found." });
+  }
+};

@@ -1,6 +1,8 @@
 import { v4 } from "uuid";
 import Cart from "../models/cartSchema.js";
 import Order from "../models/orderSchema.js";
+import sendMail from "../utils/sendMail.js";
+import User from "../models/userSchema.js";
 
 export const createOrder = async (req, res) => {
   try {
@@ -20,9 +22,15 @@ export const createOrder = async (req, res) => {
       orderStatus,
       orderID,
     });
-    console.log(order);
     await order.save();
     await Cart.deleteMany({ userID: userID });
+    const link = `${process.env.BASE_URL}/orders`
+    const body = `<p>Dear User, </p>
+                  <p>Your order with OrderID: ${orderID}, has been placed successully.</p>
+                  <p><a href=${link}>Click Here<a> to check out the details.</p>
+                  <p>Have a good day.</p>
+                  <p>Thank you.</p>`
+    // await sendMail(req.user.email, "Your order has been placed successfully.", body)
     res.status(201).json({ message: "Order placed successfully." });
   } catch (error) {
     res.status(500).json({ message: "Cannot place order." });
@@ -48,6 +56,14 @@ export const changeStatus = async (req, res) => {
     );
     if (!order)
       return res.status(404).json({ message: "Order does not found." });
+    const user = await User.findById(order.userID)
+    const link = `${process.env.BASE_URL}/orders`
+    const body = `<p>Dear User, </p>
+                  <p>Your order with OrderID: ${order.orderID}, has been ${order.orderStatus}.</p>
+                  <p><a href=${link}>Click Here<a> to check out the details.</p>
+                  <p>Have a good day.</p>
+                  <p>Thank you.</p>`
+    await sendMail(user.email, "Your order's status has been updated.", body)
     res.status(200).json({ message: "Status changed successfully.", order });
   } catch (error) {
     res.status(500).json({ message: "Cannot change the status." });
@@ -177,11 +193,32 @@ export const getThisMonthOrdersCount = async (req, res) => {
 export const searchOrders = async(req, res) => {
   try {
     const query = req.params.query;
-    const orders = await Order.find({
-      orderID: { $regex: `^${query}`, $options: "i" },
-    });
+    const orders = await Order.find({ $or: [
+      { orderID: { $regex: `^${query}`, $options: "i" } },
+      { "address.firstName": { $regex: `^${query}`, $options: "i" } },
+      { "address.lastName": { $regex: `^${query}`, $options: "i" } },
+      { "address.state": { $regex: `^${query}`, $options: "i" } },
+      { "address.city": { $regex: `^${query}`, $options: "i" } },
+    ]}).populate("products.productID");
+    
     res.status(200).json(orders);
   } catch (error) {
-    res.status(500).json({ message: "Order not found." });
+    res.status(500).json({ message: "Cannot get orders." });
+  }
+}
+
+export const filterOrders = async(req, res) => {
+  try {
+    let status = req.params.status
+    if(status === "All"){
+      const orders = await Order.find().populate("products.productID")
+      return res.status(200).json(orders)
+    }
+    if(status === "Out-for-Delivery")
+      status = "Out for Delivery"  
+    const orders = await Order.find({ orderStatus: status }).populate("products.productID")
+    res.status(200).json(orders)
+  } catch (error) {
+    res.status(500).json({ message: "Cannot get orders" })
   }
 }

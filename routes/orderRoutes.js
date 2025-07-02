@@ -1,5 +1,5 @@
 import express from 'express'
-import { changeStatus, createOrder, dailyOrdersCount, getMyOrders, getOrders, getThisMonthOrdersCount, orderStatusCount, searchOrders } from '../controllers/orderController.js'
+import { changeStatus, createOrder, dailyOrdersCount, filterOrders, getMyOrders, getOrders, getThisMonthOrdersCount, orderStatusCount, searchOrders } from '../controllers/orderController.js'
 import { adminAuth } from '../middlewares/adminAuthMiddleware.js'
 import { userAuth } from '../middlewares/userAuthMiddleware.js'
 
@@ -13,3 +13,4 @@ orderRoutes.get("/getThisMonthOrdersCount", adminAuth, getThisMonthOrdersCount)
 orderRoutes.get("/getDailyOrdersCount", adminAuth, dailyOrdersCount)
 orderRoutes.get("/getOrderStatusCount/:time", adminAuth, orderStatusCount)
 orderRoutes.get("/search/:query", adminAuth, searchOrders)
+orderRoutes.get("/filter/:status", adminAuth, filterOrders)

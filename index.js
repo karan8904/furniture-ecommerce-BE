@@ -2,6 +2,7 @@ import express from 'express';
 import { dbConnection } from './config.js'
 import cors from 'cors'
 import { routes } from './routes/routes.js';
+import { offerEmails, subscriptionEmails } from './utils/cronJobs.js';
 
 const app = express()
 
@@ -24,3 +25,5 @@ const startApp = async () => {
 }
 
 startApp()
+// offerEmails.start()
+// subscriptionEmails.start()
