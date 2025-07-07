@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer'
 
-const sendMail = async (email, subject, body) => {
+const sendMail = async (email, subject, body, file) => {
     try {
         const transporter = nodemailer.createTransport({
             host: process.env.HOST,
@@ -12,13 +12,25 @@ const sendMail = async (email, subject, body) => {
                 pass: process.env.PASS
             }
         })
-
-        await transporter.sendMail({
+        const mailOptions = {
             from: process.env.USER,
             to: email,
             subject: subject,
             html: body
-        })
+        };
+
+        if (file) {
+            mailOptions.attachments = [
+                {
+                    filename: 'invoice.pdf',
+                    content: file,
+                    contentType: 'application/pdf'
+                }
+            ];
+        }
+
+
+        await transporter.sendMail(mailOptions)
         console.log("Email sent successfully.")
     } catch (error) {
         console.log("Cannot send an email...")

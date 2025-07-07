@@ -3,13 +3,24 @@ import Cart from "../models/cartSchema.js";
 import Order from "../models/orderSchema.js";
 import sendMail from "../utils/sendMail.js";
 import User from "../models/userSchema.js";
+import Stripe from "stripe";
+import { createPdf } from "../utils/createPdf.js";
+
+const stripe = new Stripe(process.env.STRIPE_KEY);
 
 export const createOrder = async (req, res) => {
   try {
-    const { userID, products, totalAmount, address, paymentMode } = req.body;
+    const {
+      userID,
+      products,
+      totalAmount,
+      address,
+      paymentMode,
+      paymentID,
+      paymentStatus,
+    } = req.body;
     if (!req.user._id.equals(userID))
       return res.status(401).json({ message: "Not Authorized." });
-    const paymentStatus = "Pending";
     const orderStatus = "Placed";
     const orderID = v4();
     const order = new Order({
@@ -19,19 +30,24 @@ export const createOrder = async (req, res) => {
       address,
       paymentMode,
       paymentStatus,
+      paymentID,
       orderStatus,
       orderID,
     });
     await order.save();
+    const populatedOrder = await Order.findById(order._id).populate("products.productID")
     await Cart.deleteMany({ userID: userID });
-    const link = `${process.env.BASE_URL}/orders`
+    const link = `${process.env.BASE_URL}/orders`;
     const body = `<p>Dear User, </p>
                   <p>Your order with OrderID: ${orderID}, has been placed successully.</p>
                   <p><a href=${link}>Click Here<a> to check out the details.</p>
                   <p>Have a good day.</p>
-                  <p>Thank you.</p>`
-    // await sendMail(req.user.email, "Your order has been placed successfully.", body)
-    res.status(201).json({ message: "Order placed successfully." });
+                  <p>Thank you.</p>`;
+    if(paymentStatus === "COD"){
+      const file = await createPdf(populatedOrder)
+      await sendMail(req.user.email, "Your order has been placed successfully.", body, file)
+    }
+    res.status(201).json({ message: "Order placed successfully.", order });
   } catch (error) {
     res.status(500).json({ message: "Cannot place order." });
   }
@@ -39,7 +55,7 @@ export const createOrder = async (req, res) => {
 
 export const getOrders = async (req, res) => {
   try {
-    const orders = await Order.find().populate("products.productID");
+    const orders = await Order.find().populate("products.productID").sort({"createdAt": -1});
     res.status(200).json({ message: "Orders Fetched.", orders });
   } catch (error) {
     res.status(500).json({ message: "Cannot get orders." });
@@ -53,17 +69,24 @@ export const changeStatus = async (req, res) => {
       id,
       { orderStatus: status },
       { new: true }
-    );
+    ).populate("products.productID");
     if (!order)
       return res.status(404).json({ message: "Order does not found." });
-    const user = await User.findById(order.userID)
-    const link = `${process.env.BASE_URL}/orders`
+    const user = await User.findById(order.userID);
+    const link = `${process.env.BASE_URL}/orders`;
     const body = `<p>Dear User, </p>
                   <p>Your order with OrderID: ${order.orderID}, has been ${order.orderStatus}.</p>
                   <p><a href=${link}>Click Here<a> to check out the details.</p>
                   <p>Have a good day.</p>
-                  <p>Thank you.</p>`
-    await sendMail(user.email, "Your order's status has been updated.", body)
+                  <p>Thank you.</p>`;
+    if(status === "Delivered"){
+      order.paymentStatus = "Success"
+      await order.save()
+      const file = await createPdf(order)
+      await sendMail(user.email, "Your order has been delivered.", body, file)
+      return res.status(200).json({ message: "Order Delivered.", order })
+    }
+    await sendMail(user.email, "Your order's status has been updated.", body);
     res.status(200).json({ message: "Status changed successfully.", order });
   } catch (error) {
     res.status(500).json({ message: "Cannot change the status." });
@@ -144,12 +167,10 @@ export const orderStatusCount = async (req, res) => {
       },
     ]);
 
-    res
-      .status(200)
-      .json({
-        message: "Product counts fetched according to order status.",
-        orders,
-      });
+    res.status(200).json({
+      message: "Product counts fetched according to order status.",
+      orders,
+    });
   } catch (error) {
     res.status(400).json({ message: "Cannot fetch data. Try again.", error });
   }
@@ -190,35 +211,70 @@ export const getThisMonthOrdersCount = async (req, res) => {
   }
 };
 
-export const searchOrders = async(req, res) => {
+export const searchOrders = async (req, res) => {
   try {
     const query = req.params.query;
-    const orders = await Order.find({ $or: [
-      { orderID: { $regex: `^${query}`, $options: "i" } },
-      { "address.firstName": { $regex: `^${query}`, $options: "i" } },
-      { "address.lastName": { $regex: `^${query}`, $options: "i" } },
-      { "address.state": { $regex: `^${query}`, $options: "i" } },
-      { "address.city": { $regex: `^${query}`, $options: "i" } },
-    ]}).populate("products.productID");
-    
+    const orders = await Order.find({
+      $or: [
+        { orderID: { $regex: `^${query}`, $options: "i" } },
+        { "address.firstName": { $regex: `^${query}`, $options: "i" } },
+        { "address.lastName": { $regex: `^${query}`, $options: "i" } },
+        { "address.state": { $regex: `^${query}`, $options: "i" } },
+        { "address.city": { $regex: `^${query}`, $options: "i" } },
+      ],
+    }).populate("products.productID");
+
     res.status(200).json(orders);
   } catch (error) {
     res.status(500).json({ message: "Cannot get orders." });
   }
-}
+};
 
-export const filterOrders = async(req, res) => {
+export const filterOrders = async (req, res) => {
   try {
-    let status = req.params.status
-    if(status === "All"){
-      const orders = await Order.find().populate("products.productID")
-      return res.status(200).json(orders)
+    let status = req.params.status;
+    if (status === "All") {
+      const orders = await Order.find().populate("products.productID");
+      return res.status(200).json(orders);
     }
-    if(status === "Out-for-Delivery")
-      status = "Out for Delivery"  
-    const orders = await Order.find({ orderStatus: status }).populate("products.productID")
-    res.status(200).json(orders)
+    if (status === "Out-for-Delivery") status = "Out for Delivery";
+    const orders = await Order.find({ orderStatus: status }).populate(
+      "products.productID"
+    );
+    res.status(200).json(orders);
   } catch (error) {
-    res.status(500).json({ message: "Cannot get orders" })
+    res.status(500).json({ message: "Cannot get orders" });
+  }
+};
+
+export const confirmOrder = async (req, res) => {
+  try {
+    const sessionID = req.params.session_id; 
+    const session = await stripe.checkout.sessions.retrieve(sessionID);
+    const orderID = session.metadata.orderID
+    const order = await Order.findOne({ orderID: orderID }).populate("products.productID")
+    order.paymentID = sessionID
+    order.paymentStatus = "Success"
+    await order.save()
+    const pdf = await createPdf(order)
+    await sendMail(req.user.email, "Your payment invoice","Thank you for payment", pdf)
+    res.status(200).json({
+      payment_status: session.payment_status,
+      metadata: session.metadata,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch the data." })
+  }
+};
+
+export const mailInvoice = async(req, res) => {
+  try {
+    const id = req.params.id
+    const order = await Order.findById(id).populate("products.productID")
+    const pdf = await createPdf(order)
+    await sendMail(req.user.email, "Order Invoice", "Here's your requested invoice.", pdf)
+    res.status(200).json({ message: "Email sent successfully.", order_id: id })
+  } catch (error) {
+    res.status(500).json({ message: "Cannot email invoice. Try Again." })
   }
 }

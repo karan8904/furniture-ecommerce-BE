@@ -8,6 +8,9 @@ import { cartRoutes } from './cartRoutes.js'
 import { addressRoutes } from './addressRoutes.js'
 import { orderRoutes } from './orderRoutes.js'
 import { emailRoutes } from './emailPreferenceRoutes.js'
+import { paymentRoutes } from './paymentRoutes.js'
+import { chargesRoutes } from './chargesRoutes.js'
+import { wishlistRoutes } from './wishlistRoutes.js'
 
 export const routes = express.Router()
 
@@ -24,3 +27,6 @@ routes.use('/cart', cartRoutes)
 routes.use('/address', addressRoutes)
 routes.use('/orders', orderRoutes)
 routes.use('/email', emailRoutes)
+routes.use('/payment', paymentRoutes)
+routes.use('/charges', chargesRoutes)
+routes.use('/wishlist', wishlistRoutes)
