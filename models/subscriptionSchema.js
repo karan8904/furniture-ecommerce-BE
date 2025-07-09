@@ -18,7 +18,7 @@ const subscriptionSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ["active", "cancelled", "ended"],
+        enum: ["active", "canceled", "ended"],
     },
     startDate: {
         type: Date,
@@ -28,6 +28,10 @@ const subscriptionSchema = new mongoose.Schema({
     },
     invoiceUrl: {
         type: String
+    },
+    cancelAtPeriodEnd: {
+        type: Boolean,
+        default: false
     }
 })
 

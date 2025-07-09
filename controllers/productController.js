@@ -194,7 +194,6 @@ export const filterProducts = async (req, res) => {
         $sort: sort 
       }
     ]);
-    console.table(products)
     res.status(200).json(products);
   } catch (error) {
     res.status(500).json({ message: "No products found." });

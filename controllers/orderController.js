@@ -97,7 +97,7 @@ export const getMyOrders = async (req, res) => {
   try {
     const orders = await Order.find({ userID: req.user._id }).populate(
       "products.productID"
-    );
+    ).sort({ "createdAt": -1 });
     res.status(200).json({ message: "Orders fetched successfully.", orders });
   } catch (error) {
     res.status(500).json({ message: "Cannot change the status." });

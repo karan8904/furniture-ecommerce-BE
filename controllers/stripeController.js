@@ -26,6 +26,7 @@ export const stripeWebhooks = async(req, res) => {
                     status: subscription.status,
                     priceID: subscription.plan.id,
                     startDate: new Date(subscription.start_date * 1000),
+                    cancelAtPeriodEnd: subscription.cancel_at_period_end,
                     invoiceUrl: hostedInvoiceUrl
                 },
             )
@@ -36,7 +37,7 @@ export const stripeWebhooks = async(req, res) => {
     
             await Subscription.findOneAndUpdate(
               { subscriptionID: subscription.id },
-              { status: "cancelled" }
+              { status: "canceled" }
             );
     
             console.log("Subscription cancelled:", subscription.id);
