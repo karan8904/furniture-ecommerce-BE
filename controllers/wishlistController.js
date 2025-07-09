@@ -5,7 +5,6 @@ export const addToWishlist = async (req, res) => {
   try {
     const userID = req.user._id;
     const productID = req.body.id;
-    console.log(productID);
     await Wishlist.findOneAndUpdate(
       { userID },
       { $addToSet: { productIDs: productID } },
@@ -29,7 +28,6 @@ export const getFromWishlist = async (req, res) => {
         .status(200)
         .json({ message: "No data available in wishlist.", products: [] });
     await wishlist.populate("productIDs");
-    console.log(wishlist.productIDs);
     return res
       .status(200)
       .json({

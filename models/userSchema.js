@@ -30,6 +30,10 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: true,
         required: true
+    },
+    profilePicture: {
+        type: String, 
+        required: false
     }
 }, {
     timestamps: true

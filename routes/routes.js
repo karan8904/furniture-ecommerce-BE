@@ -11,6 +11,9 @@ import { emailRoutes } from './emailPreferenceRoutes.js'
 import { paymentRoutes } from './paymentRoutes.js'
 import { chargesRoutes } from './chargesRoutes.js'
 import { wishlistRoutes } from './wishlistRoutes.js'
+import { reviewRoutes } from './reviewRoutes.js'
+import { subscriptionRoutes } from './subscriptionRoutes.js'
+import { stripeRoutes } from './stripeRoutes.js'
 
 export const routes = express.Router()
 
@@ -30,3 +33,6 @@ routes.use('/email', emailRoutes)
 routes.use('/payment', paymentRoutes)
 routes.use('/charges', chargesRoutes)
 routes.use('/wishlist', wishlistRoutes)
+routes.use('/reviews', reviewRoutes)
+routes.use('/subscription', subscriptionRoutes)
+routes.use('/stripe', stripeRoutes)

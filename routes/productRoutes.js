@@ -2,7 +2,6 @@ import express from 'express'
 import { upload } from '../utils/multerConfig.js'
 import { addProduct, deleteProduct, getProducts, updateProduct, getSingleProduct, getProductsFromCategory, getDummyProducts, searchProducts, filterProducts } from '../controllers/productController.js'
 import { adminAuth } from '../middlewares/adminAuthMiddleware.js'
-import { userAuth } from '../middlewares/userAuthMiddleware.js'
 
 export const productRoutes = express.Router()
 

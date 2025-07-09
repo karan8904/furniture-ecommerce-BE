@@ -82,7 +82,17 @@ export const getUser = async(req, res) => {
 
 export const editUser = async(req, res) => {
   try {
-    const user = await User.findByIdAndUpdate(req.user._id, req.body, {new: true})
+    const {firstName, lastName, phone, profilePicture} = req.body
+    const newData = {
+      firstName, 
+      lastName, 
+      phone, 
+    }
+    if(req.file)
+      newData.profilePicture = req.file.path
+    if(profilePicture)
+      newData.profilePicture = profilePicture
+    const user = await User.findByIdAndUpdate(req.user._id, newData, {new: true})
     res.status(200).json(user)
   } catch (error) {
     res.status(400).json({ message: "Cannot update user details." })
