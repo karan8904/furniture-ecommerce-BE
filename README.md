@@ -8,7 +8,9 @@ JWT_KEY=your jwt key
 
 SERVICE=your service for email
 
-USER=your email
+HOST=your host for email
+
+EMAIL=your email
 
 PASS=your password
 

@@ -4,11 +4,11 @@ const sendMail = async (email, subject, body, file) => {
     try {
         const transporter = nodemailer.createTransport({
             host: process.env.HOST,
-            service: process.env.service,
+            service: process.env.SERVICE,
             port: 587,
             secure: true,
             auth: {
-                user: process.env.USER,
+                user: process.env.GMAIL,
                 pass: process.env.PASS
             }
         })
@@ -33,7 +33,7 @@ const sendMail = async (email, subject, body, file) => {
         await transporter.sendMail(mailOptions)
         console.log("Email sent successfully.")
     } catch (error) {
-        console.log("Cannot send an email...")
+        console.log("Cannot send an email...", error)
     }
 }
 
