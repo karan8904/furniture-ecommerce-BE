@@ -31,7 +31,7 @@ export const addToCart = async (req, res) => {
 
 export const getCartProducts = async (req, res) => {
   try {
-    const userID = req.params.userID;
+    const userID = req.user._id;
     if(!req.user._id.equals(userID))
       return res.status(401).json({ message: "Not Authorized." })
     const products = await Cart.find({ userID }).populate(
