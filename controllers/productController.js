@@ -144,9 +144,10 @@ export const getProductsFromCategory = async (req, res) => {
 export const getDummyProducts = async (req, res) => {
   try {
     const products = await Promise.all(
-      Array.from({ length: 10 }, () => generateProducts())
+      Array.from({ length: 30 }, () => generateProducts())
     );
-    // await Product.insertMany(products)
+    console.log("products", products);
+    await Product.insertMany(products)
     res.status(200).json({ message: "Products added successfully.", products });
   } catch (error) {
     res.status(500).json({ message: "Cannot get products. Try again." });

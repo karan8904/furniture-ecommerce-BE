@@ -5,8 +5,8 @@ import Subscription from "../models/subscriptionSchema.js";
 const stripe = new Stripe(process.env.STRIPE_KEY);
 export const checkoutSession = async (req, res) => {
   const { products, orderID, totalAmount } = req.body;
-  const platformCharges = await Charges.findOne({ name: "Platform Charge" });
-  const deliveryCharges = await Charges.findOne({ name: "Delivery Charge" });
+  // const platformCharges = await Charges.findOne({ name: "Platform Charge" });
+  // const deliveryCharges = await Charges.findOne({ name: "Delivery Charge" });
   const line_items = products.map((product) => ({
     price_data: {
       currency: "inr",
@@ -40,33 +40,33 @@ export const checkoutSession = async (req, res) => {
     quantity: 1,
   });
 
-  line_items.push({
-    price_data: {
-      currency: "inr",
-      product_data: {
-        name: `Platform Charges (${platformCharges.chargePercent}%)`,
-      },
-      unit_amount: Math.round(
-        totalAmount * (platformCharges.chargePercent / 100) * 100
-      ),
-    },
-    quantity: 1,
-  });
+  // line_items.push({
+  //   price_data: {
+  //     currency: "inr",
+  //     product_data: {
+  //       name: `Platform Charges (${platformCharges?.chargePercent}%)`,
+  //     },
+  //     unit_amount: Math.round(
+  //       totalAmount * (platformCharges?.chargePercent / 100) * 100
+  //     ),
+  //   },
+  //   quantity: 1,
+  // });
 
-  if (deliveryCharges?.chargePercent > 0) {
-    line_items.push({
-      price_data: {
-        currency: "inr",
-        product_data: {
-          name: `Delivery Charges`,
-        },
-        unit_amount: Math.round(
-          totalAmount * (deliveryCharges.chargePercent / 100) * 100
-        ),
-      },
-      quantity: 1,
-    });
-  }
+  // if (deliveryCharges?.chargePercent > 0) {
+  //   line_items.push({
+  //     price_data: {
+  //       currency: "inr",
+  //       product_data: {
+  //         name: `Delivery Charges`,
+  //       },
+  //       unit_amount: Math.round(
+  //         totalAmount * (deliveryCharges?.chargePercent / 100) * 100
+  //       ),
+  //     },
+  //     quantity: 1,
+  //   });
+  // }
 
   try {
     const session = await stripe.checkout.sessions.create({
