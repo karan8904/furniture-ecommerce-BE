@@ -263,6 +263,7 @@ export const confirmOrder = async (req, res) => {
       metadata: session.metadata,
     });
   } catch (error) {
+    console.log("Error in confirmOrder:",error)
     res.status(500).json({ message: "Failed to fetch the data." })
   }
 };

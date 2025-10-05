@@ -8,12 +8,12 @@ const sendMail = async (email, subject, body, file) => {
             port: 587,
             secure: true,
             auth: {
-                user: process.env.GMAIL,
+                user: process.env.EMAIL,
                 pass: process.env.PASS
             }
         })
         const mailOptions = {
-            from: process.env.USER,
+            from: process.env.EMAIL,
             to: email,
             subject: subject,
             html: body

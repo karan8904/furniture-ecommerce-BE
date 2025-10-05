@@ -125,11 +125,15 @@ export const createPdf = async (order) => {
       </div>
     </body>
     </html>`;
-
-  const browser = await chromium.launch();
-  const page = await browser.newPage();
-  await page.setContent(html, { waitUntil: "domcontentloaded" });
-  const buffer = await page.pdf({ format: "A4", printBackground: true });
-  await browser.close();
-  return buffer;
+  try {
+    const browser = await chromium.launch();
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: "domcontentloaded" });
+    const buffer = await page.pdf({ format: "A4", printBackground: true });
+    await browser.close();
+    return buffer;
+  } catch (error) {
+    console.log("Error generating PDF:", error);
+    throw error;
+  } 
 };
