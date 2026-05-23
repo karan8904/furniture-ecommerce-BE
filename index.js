@@ -4,13 +4,13 @@ import cors from 'cors'
 import { routes } from './routes/routes.js';
 import { offerEmails, subscriptionEmails } from './utils/cronJobs.js';
 import dotenv from 'dotenv';
+import './config/cloudinary.js';
 
 const app = express()
 dotenv.config()
 
 app.use(express.json())
 app.use(cors()) 
-app.use('/uploads', express.static('uploads'))
 app.use('/', routes)
 
 const PORT = process.env.PORT || 5000

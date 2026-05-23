@@ -2,17 +2,17 @@ import Category from "../models/categorySchema.js";
 import fs from "fs";
 import { categoriesList, dummyImages } from "../utils/dummyCategories.js";
 import { faker } from "@faker-js/faker";
+import { uploadToCloudinary } from '../middlewares/upload.js';
 
 export const addCategory = async(req, res) => {
     try {
         const { name, description } = req.body
-        const { path } = req.file
         const isCatagoryExists = await Category.findOne({name: { $regex: `^${name}$`, $options: "i" }})
         if(isCatagoryExists){
-            fs.unlinkSync(path);
             return res.status(400).json({ message: "Category already exists." })
         }
-        const category = new Category({name, description, imageURL: path})
+        const result = await uploadToCloudinary(req.file.buffer, 'furniture-ecomm/categories');
+        const category = new Category({name, description, imageURL: result.secure_url})
         await category.save()
         res.status(201).json({ message: "Category added.", category})
     } catch (error) {
@@ -35,7 +35,6 @@ export const deleteCategory = async(req, res) => {
     try {
         const id = req.params.id
         const category = await Category.findByIdAndDelete(id)
-        fs.unlinkSync(category.imageURL)
         res.status(200).json({message: "Category deleted successfully."})
     } catch (error) {
         console.log(error)
@@ -53,8 +52,10 @@ export const updateCategory = async(req, res) => {
             description: description
         }
 
-        if(req.file)
-            newData.imageURL = req.file.path
+        if(req.file) {
+            const result = await uploadToCloudinary(req.file.buffer, 'furniture-ecomm/categories');
+            newData.imageURL = result.secure_url ?? null
+        }
         else if(image)
             newData.imageURL = image
         else

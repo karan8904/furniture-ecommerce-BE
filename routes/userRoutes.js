@@ -1,6 +1,6 @@
 import express from 'express'
 import { changeUserStatus, editUser, getAllUsers, getUser, loginUser, registerUser, searchUsers } from '../controllers/userController.js'
-import { upload } from '../utils/multerConfig.js'
+import { upload } from "../middlewares/upload.js";
 import { userAuth } from '../middlewares/userAuthMiddleware.js'
 import { adminAuth } from '../middlewares/adminAuthMiddleware.js'
 

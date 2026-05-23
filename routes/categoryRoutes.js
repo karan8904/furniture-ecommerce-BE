@@ -1,6 +1,6 @@
 import express from 'express'
 import { addCategory, deleteCategory, getCategories, getDummyCategories, searchCategories, updateCategory } from '../controllers/categoryController.js'
-import { upload } from "../utils/multerConfig.js";
+import { upload } from "../middlewares/upload.js";
 import { adminAuth } from '../middlewares/adminAuthMiddleware.js';
 import { userAuth } from '../middlewares/userAuthMiddleware.js'
 

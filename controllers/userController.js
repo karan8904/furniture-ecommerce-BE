@@ -1,6 +1,7 @@
 import User from "../models/userSchema.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { uploadToCloudinary } from '../middlewares/upload.js';
 
 export const registerUser = async (req, res) => {
   try {
@@ -91,8 +92,10 @@ export const editUser = async(req, res) => {
       lastName, 
       phone, 
     }
-    if(req.file)
-      newData.profilePicture = req.file.path
+    if(req.file){
+      const result = await uploadToCloudinary(req.file.buffer, 'furniture-ecomm/userAvatar');
+      newData.profilePicture = result.secure_url ?? null
+    }
     if(profilePicture)
       newData.profilePicture = profilePicture
     const user = await User.findByIdAndUpdate(req.user._id, newData, {new: true})

@@ -2,6 +2,7 @@ import Product from "../models/productSchema.js";
 import Category from "../models/categorySchema.js";
 import { generateProducts } from "../utils/dummyProducts.js";
 import fs from "fs";
+import { uploadToCloudinary } from '../middlewares/upload.js';
 
 export const addProduct = async (req, res) => {
   try {
@@ -21,10 +22,11 @@ export const addProduct = async (req, res) => {
       category: category,
     });
     if (isProductExists) {
-      req.files.forEach((file) => fs.unlinkSync(file.path));
       return res.status(400).json({ message: "This product already exists." });
     }
-    const imagesURL = req.files.map((image) => image.path);
+    const imagesURL = await Promise.all(
+      req.files.map(file => uploadToCloudinary(file.buffer, 'furniture-ecomm/products').then(r => r.secure_url))
+    );
     const product = new Product({
       name,
       description,
@@ -60,7 +62,6 @@ export const deleteProduct = async (req, res) => {
   try {
     const id = req.params.id;
     const product = await Product.findByIdAndDelete(id);
-    product.images.forEach((image) => fs.unlinkSync(image));
     res.status(200).json({ message: "Product deleted successfully.", product });
   } catch (error) {
     console.log(error);
@@ -96,7 +97,10 @@ export const updateProduct = async (req, res) => {
       isVisible,
     };
     if (req.files) {
-      const files = req.files.map((img) => img.path);
+      const files = await Promise.all(req.files.map(async(img) => {
+        const result = await uploadToCloudinary(img.buffer, 'furniture-ecomm/products');
+        return result.secure_url ?? null
+      }));
       newData.images = [...newData.images, ...files];
     }
     if (images) {
