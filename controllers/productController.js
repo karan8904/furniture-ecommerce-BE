@@ -1,7 +1,5 @@
 import Product from "../models/productSchema.js";
 import Category from "../models/categorySchema.js";
-import { generateProducts } from "../utils/dummyProducts.js";
-import fs from "fs";
 import { uploadToCloudinary } from '../middlewares/upload.js';
 
 export const addProduct = async (req, res) => {
@@ -140,19 +138,6 @@ export const getProductsFromCategory = async (req, res) => {
         .status(400)
         .json({ message: "Cannot get products from this category." });
     res.status(200).json({ products });
-  } catch (error) {
-    res.status(500).json({ message: "Cannot get products. Try again." });
-  }
-};
-
-export const getDummyProducts = async (req, res) => {
-  try {
-    const products = await Promise.all(
-      Array.from({ length: 30 }, () => generateProducts())
-    );
-    console.log("products", products);
-    await Product.insertMany(products)
-    res.status(200).json({ message: "Products added successfully.", products });
   } catch (error) {
     res.status(500).json({ message: "Cannot get products. Try again." });
   }

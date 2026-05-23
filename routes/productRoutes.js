@@ -1,6 +1,6 @@
 import express from 'express'
 import { upload } from "../middlewares/upload.js";
-import { addProduct, deleteProduct, getProducts, updateProduct, getSingleProduct, getProductsFromCategory, getDummyProducts, searchProducts, filterProducts } from '../controllers/productController.js'
+import { addProduct, deleteProduct, getProducts, updateProduct, getSingleProduct, getProductsFromCategory, searchProducts, filterProducts } from '../controllers/productController.js'
 import { adminAuth } from '../middlewares/adminAuthMiddleware.js'
 
 export const productRoutes = express.Router()
@@ -11,6 +11,5 @@ productRoutes.delete('/delete/:id', adminAuth, deleteProduct)
 productRoutes.put('/edit/:id', adminAuth, upload.array('images', 5), updateProduct)
 productRoutes.get('/get/:id', getSingleProduct)
 productRoutes.get('/category/:id', getProductsFromCategory)
-productRoutes.get('/dummyProducts', getDummyProducts)
 productRoutes.get('/search/:query', searchProducts)
 productRoutes.get('/filter/:query', filterProducts)
