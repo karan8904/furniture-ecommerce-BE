@@ -102,12 +102,6 @@ All routes are mounted from the root path.
 
 Uploads are handled in memory with Multer and stored in Cloudinary. Supported image types are JPEG, PNG, and WebP, with a 5 MB file size limit.
 
-The image migration helper is available at:
-
-```bash
-node scripts/migrateImagesToCloudinary.js
-```
-
 ## Notes
 
 - Auth-protected routes use either `userAuth` or `adminAuth`.
