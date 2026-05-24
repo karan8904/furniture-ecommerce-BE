@@ -1,7 +1,7 @@
 import { chromium } from "playwright";
-import path from "path";
-import fs from "fs";
 import Charges from "../models/chargesSchema.js";
+
+const LOGO_URL = "https://res.cloudinary.com/dwojsioxr/image/upload/v1779552303/logo_axlfmj.png";
 
 export const createPdf = async (order) => {
   const createdAt = order?.createdAt ? order.createdAt : "N/A";
@@ -15,8 +15,6 @@ export const createPdf = async (order) => {
   const platformCharges = Math.round(platformChargesPercent?.chargePercent > 0 ? totalAmount * (platformChargesPercent.chargePercent / 100) : 0);
   const totalAmountAfterTax = Math.round(totalAmount + taxAmount + taxAmount + platformCharges + deliveryCharges);
   const paymentMode = order?.paymentMode !== "COD" ? "Online" : "COD";
-  const logoPath = path.join(process.cwd(), "uploads/logo.png");
-  const logoBase64 = fs.readFileSync(logoPath, { encoding: "base64" });
 
   const html = `<!DOCTYPE html>
     <html>
@@ -58,7 +56,7 @@ export const createPdf = async (order) => {
     </head>
     <body>
       <div class="header">
-        <img src="data:image/png;base64,${logoBase64}" class="logo" alt="logo" />
+        <img src="${LOGO_URL}" class="logo" alt="logo" />
         <div class="brand">Furniro</div>
       </div>
       <h2 class="title">Order Invoice</h2>
@@ -128,7 +126,7 @@ export const createPdf = async (order) => {
   try {
     const browser = await chromium.launch();
     const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: "domcontentloaded" });
+    await page.setContent(html, { waitUntil: "networkidle" });
     const buffer = await page.pdf({ format: "A4", printBackground: true });
     await browser.close();
     return buffer;

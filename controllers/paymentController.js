@@ -80,7 +80,7 @@ export const checkoutSession = async (req, res) => {
       },
     });
 
-    res.status(200).json({ id: session.id });
+    res.status(200).json({ id: session.id, url: session.url, });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
